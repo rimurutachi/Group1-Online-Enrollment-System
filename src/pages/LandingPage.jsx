@@ -141,6 +141,33 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Video Section */}
+      <section className={`${styles.videoSection} py-5`}>
+        <div className="container text-center">
+          <div className={`${styles.videoPlaceholder} mb-4`}>
+            <i className="fas fa-play fa-2x"></i>
+          </div>
+          <div className="row">
+            <div className="col-md-3">
+              <p className={`${styles.statNumber} text-success`}>8</p>
+              <p className="text-muted">Total Majors</p>
+            </div>
+            <div className="col-md-3">
+              <p className={`${styles.statNumber} text-success`}>100</p>
+              <p className="text-muted">Total Teachers</p>
+            </div>
+            <div className="col-md-3">
+              <p className={`${styles.statNumber} text-success`}>1200</p>
+              <p className="text-muted">Total Students</p>
+            </div>
+            <div className="col-md-3">
+              <p className={`${styles.statNumber} text-success`}>35</p>
+              <p className="text-muted">Extracurricular</p>
+            </div>
+          </div>
+        </div>
+      </section>
       </main>
     </div>
   );
