@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import styles from "../styles/LandingPage.module.css";
@@ -8,6 +9,12 @@ function LandingPage() {
 
     const toggleNavbar = () => {
       setIsOpen(!isOpen);
+    };
+
+    const navigate = useNavigate(); // Hook for navigation
+
+    const handleLoginClick = () => {
+      navigate('/LoginPage'); // Redirect to LoginPage
     };
 
   return (
@@ -69,6 +76,15 @@ function LandingPage() {
                 </a>
               </li>
               <li className="nav-item">
+                <a className="nav-link" href="#schoolportal" 
+                 onClick={(e) => {
+                  e.preventDefault(); // Prevent default anchor behavior
+                  handleLoginClick(); // Redirect to LoginPage
+                }}>
+                  School Portal
+                </a>
+              </li>
+              <li className="nav-item">
                 <a className="nav-link" href="#information">
                   Information
                 </a>
@@ -101,12 +117,6 @@ function LandingPage() {
               The Cavite State University (CvSU) has its humble beginnings in 1906
             </p>
             <div className={`${styles.buttonGroup} mt-4`}>
-              <button className={`${styles.button} btn btn-success mx-2`}>
-                Faculty Login
-              </button>
-              <button className={`${styles.button} btn btn-success mx-2`}>
-                Student Page
-              </button>
             </div>
           </div>
         </div>
@@ -155,10 +165,10 @@ function LandingPage() {
             </div>
             <div className="col-md-3">
               <p className={`${styles.statNumber} text-success`}>100</p>
-              <p className="text-muted">Total Teachers</p>
+              <p className="text-muted">Total Faculty</p>
             </div>
             <div className="col-md-3">
-              <p className={`${styles.statNumber} text-success`}>1200</p>
+              <p className={`${styles.statNumber} text-success`}>5600</p>
               <p className="text-muted">Total Students</p>
             </div>
             <div className="col-md-3">
