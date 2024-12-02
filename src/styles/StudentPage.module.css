@@ -15,6 +15,8 @@ body {
     color: white;
     padding: 20px;
     box-sizing: border-box;
+    background-size: cover; /* Ensures background always covers the screen */
+    background-attachment: fixed; /* Optional for a parallax effect */
 }
 
 /* Header Section */
@@ -142,5 +144,92 @@ input:focus {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* Adjust for smaller screens */
+@media (max-width: 768px) {
+    .studentPage {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 0; /* Remove padding to maximize the background effect */
+        height: 100%;
+        min-height: 100vh; /* Ensures full coverage for smaller screens */
+    }
+
+    .left,
+    .right {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .left {
+        align-items: center;
+        padding: 15px;
+        width: 100%;
+        border-radius: 0; /* Remove rounded edges to blend with the background */
+    }
+
+    .left::before {
+        border-radius: 0;
+    }
+
+    .right {
+        padding: 20px;
+    }
+
+    .sectionTitle {
+        font-size: 20px;
+    }
+
+    .loginForm {
+        padding: 15px;
+    }
+
+    input {
+        font-size: 14px;
+    }
+
+    .loginButton {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .right {
+         width: 100%;
+        padding: 20px;
+        margin-top: 20px; /* Add spacing below the left section */
+        border-radius: 0; /* Match full-screen layout */
+        box-shadow: none; /* Optional: reduce shadow for a flat design */
+    }
+}
+
+/* Adjust for very small screens (e.g., phones) */
+@media (max-width: 480px) {
+    .sectionTitle {
+        font-size: 18px;
+    }
+
+    input {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .loginButton {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .left {
+        padding: 10px;
+    }
+
+    .right {
+        padding: 15px;
+    }
+
+    .loginForm {
+        max-width: 300px;
+        padding: 10px;
     }
 }

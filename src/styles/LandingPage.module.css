@@ -222,6 +222,160 @@
   .text-muted {
     font-size: 1rem;
   }
+  
+  .greenBackground {
+    background-color: #008000;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    position: absolute;
+    font-size: 24px;
+    color: white;
+}
+
+.topLeft {
+    top: 10%;
+    left: 10%;
+}
+
+.topRight {
+    top: 10%;
+    right: 10%;
+}
+
+.bottomRight {
+    bottom: 10%;
+    right: 10%;
+}
+
+.placeholderImage {
+    max-width: 60%;
+    margin: auto;
+}
+
+/* Why choose us section */
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background-color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Icon Styling */
+.card i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* Heading */
+.card h5 {
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* Text */
+.card p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+/* Section Container */
+.whyChooseSection {
+  padding: 60px 15px;
+}
+
+.whyChooseSection h2 {
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.whyChooseSection p {
+  color: #6c757d;
+  margin-bottom: 40px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Grid System */
+.whyChooseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.section {
+  background-color: #f9f9f9;
+  padding: 50px 0;
+}
+
+.specializationSection {
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+}
+
+.description {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.viewAllButton {
+  border-color: #28a745;
+  color: #28a745;
+  transition: all 0.3s ease;
+}
+
+.viewAllButton:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.majorCard {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  max-width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.majorCard:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.majorTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 10px;
+}
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -276,6 +430,44 @@
     
       .text-muted {
         font-size: 0.9rem; /* Adjust font size for labels */
+      }
+
+      .greenBackground {
+        padding: 20px;
+      }
+
+      .icon {
+        font-size: 18px;
+      }
+
+      .placeholderImage {
+        max-width: 80%;
+      }
+
+      .topLeft, .topRight, .bottomRight {
+        top: auto;
+        right: auto;
+        left: auto;
+        bottom: auto;
+        position: static; /* Icons stack on smaller devices */
+        margin: 10px auto;
+        display: inline-block;
+      }
+
+      .featuresGrid {
+        grid-template-columns: 1fr;
+      }
+    
+      .imagePlaceholder {
+        height: 300px;
+      }
+
+      .whyChooseSection p {
+        text-align: center;
+      }
+    
+      .card {
+        text-align: center;
       }
 }
 
