@@ -18,6 +18,10 @@ function LandingPage() {
     navigate("/LoginPage"); // Redirect to LoginPage
   };
 
+  const handleAdmissionClick = () => {
+    navigate("/RegistrationForm");
+  }
+
   const majors = [
     { name: "Creative Arts", icon: "bi bi-brush" },
     { name: "Health Sciences and Medical Studies", icon: "bi-heart" },
@@ -137,7 +141,12 @@ function LandingPage() {
         <section className={`${styles.infoCards} container py-5`}>
           <div className="row text-center">
             <div className="col-md-3 mb-4">
-              <div className={`${styles.card} p-3 shadow-sm`}>
+              <div className={`${styles.card} p-3 shadow-sm`}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent default anchor behavior
+                handleAdmissionClick(); // Redirect to LoginPage
+              }}
+              >
                 <i
                   className={`${styles.cardIcon} fas fa-university fa-3x mb-3`}
                 ></i>
