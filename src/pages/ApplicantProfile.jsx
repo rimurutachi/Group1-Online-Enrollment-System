@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import ProgressHeader from "./ProgressHeader"; // Import ProgressHeader
-import styles from '../styles/ApplicantProfile.module.css';
+import ProgressHeader from "./ProgressHeader";
+import "../styles/ApplicantProfile.module.css";
+import axios from "axios";
 
 const ApplicantProfile = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const ApplicantProfile = () => {
     familyName: "",
     suffix: "",
     sex: "",
+    age: "",
     dateOfBirth: "",
     civilStatus: "",
     contactNumber: "",
@@ -32,8 +34,7 @@ const ApplicantProfile = () => {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(""); // State to hold error message
-  const [isOpen, setIsOpen] = useState(false); // For mobile sidenav toggle
+  const [errorMessage, setErrorMessage] = useState("");
 
   // State for tracking the current step
   const [currentStep, setCurrentStep] = useState(1); // Set current step to 2 (Applicant Profile)
@@ -41,21 +42,6 @@ const ApplicantProfile = () => {
   // Handle image change for preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-
-    const validateForm = () => {
-      const errors = {};
-      if (!formData.givenName) errors.givenName = "Given Name is required.";
-      if (!formData.familyName) errors.familyName = "Family Name is required.";
-      if (!formData.dateOfBirth) errors.dateOfBirth = "Date of Birth is required.";
-      if (!formData.contactNumber) errors.contactNumber = "Contact Number is required.";
-      if (!formData.nationality) errors.nationality = "Nationality is required.";
-      if (!formData.addressLine1) errors.addressLine1 = "Address is required.";
-      if (!formData.city) errors.city = "City is required.";
-      if (!formData.state) errors.state = "State is required.";
-      if (!formData.postalCode) errors.postalCode = "Postal Code is required.";
-      return errors;
-    };
-
     if (file) {
       const fileSizeInKB = file.size / 1024; // Convert size to KB
 
@@ -82,27 +68,61 @@ const ApplicantProfile = () => {
     document.getElementById("fileInput").click();
   };
 
-  // Handle the sidenav toggle (for mobile view)
-  const toggleSidenav = () => {
-    setIsOpen(!isOpen); 
+  // Handle navigation to the previous page
+  const handleBack = () => {
+    setCurrentStep(0);
+    navigate("/RegistrationForm");
   };
 
   // Handle navigation to the next page
   const handleNext = () => {
-    setCurrentStep(1); // Move to the next step
-    navigate("/FamilyProfile"); // Replace '/next-page' with the desired route
+    setCurrentStep(1);
+    navigate("/FamilyProfile");
   };
 
-  // Handle navigation to the previous page
-  const handleBack = () => {
-    setCurrentStep(0); // Return to the first step
-    navigate("/RegistrationForm"); // Replace '/previous-page' with the desired route
+  // Load form data from session storage on component mount
+  useEffect(() => {
+    const storedFormData = sessionStorage.getItem("formData");
+    if (storedFormData) {
+      setFormData(JSON.parse(storedFormData));
+    }
+  }, []);
+
+  // Save form data to session storage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post('/api/applicant', formData); 
+      console.log('Applicant data saved:', response.data);
+      // Optionally, you can redirect to another page or show a success message
+    } catch (error) {
+      console.error('Error saving applicant data:', error);
+      // Handle the error, e.g., display an error message to the user
+    }
   };
+
+  // To fetch the data:
+useEffect(() => {
+  const fetchApplicants = async () => {
+    try {
+      const response = await axios.get('/api/applicants');
+      console.log('Applicants:', response.data); 
+      // Update state with the fetched applicant data
+    } catch (error) {
+      console.error('Error fetching applicants:', error);
+    }
+  };
+
+  fetchApplicants(); 
+}, []);
 
   return (
     <div>
       {/* ProgressHeader displayed at the top */}
-      <ProgressHeader currentStep={1} />
+      <ProgressHeader currentStep={currentStep} setCurrentStep={setCurrentStep} />
 
       {/* Main Content */}
       <div
@@ -178,40 +198,106 @@ const ApplicantProfile = () => {
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">Family Name:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.familyName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, familyName: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">First Name:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.givenName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, givenName: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Middle Name:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.middleName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, middleName: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Suffix (Optional):</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.suffix}
+                    onChange={(e) =>
+                      setFormData({ ...formData, suffix: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Date of Birth:</label>
-                  <input type="date" className="form-control" />
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={formData.dateOfBirth}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dateOfBirth: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Contact Number:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.contactNumber}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contactNumber: e.target.value,
+                      })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Religion:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.religion}
+                    onChange={(e) =>
+                      setFormData({ ...formData, religion: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Citizenship:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.nationality}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nationality: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   {/* Gender */}
                   <label className="form-label">Gender at Birth:</label>
-                  <select className="form-select" aria-label="Select gender">
+                  <select
+                    className="form-select"
+                    aria-label="Select gender"
+                    value={formData.sex}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sex: e.target.value })
+                    }
+                  >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -219,11 +305,25 @@ const ApplicantProfile = () => {
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Age:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.age}
+                    onChange={(e) =>
+                      setFormData({ ...formData, age: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Civil Status:</label>
-                  <select className="form-select" aria-label="Select civil status">
+                  <select
+                    className="form-select"
+                    aria-label="Select gender"
+                    value={formData.civilStatus}
+                    onChange={(e) =>
+                      setFormData({ ...formData, civilStatus: e.target.value })
+                    }
+                  >
                     <option value="">Select Civil Status</option>
                     <option value="single">Single</option>
                     <option value="married">Married</option>
@@ -257,7 +357,7 @@ const ApplicantProfile = () => {
                   <input type="text" className="form-control" />
                 </div>
                 <div className="col-md-4">
-                  <label className="form-label">City:</label>
+                  <label className="form-label">City/Municipality:</label>
                   <input type="text" className="form-control" />
                 </div>
                 <div className="col-md-4">
@@ -266,18 +366,6 @@ const ApplicantProfile = () => {
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Zip Code:</label>
-                  <input type="text" className="form-control" />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">District:</label>
-                  <input type="text" className="form-control" />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Municipality:</label>
-                  <input type="text" className="form-control" />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Region:</label>
                   <input type="text" className="form-control" />
                 </div>
               </div>
@@ -290,10 +378,19 @@ const ApplicantProfile = () => {
                     <input
                       className="form-check-input check"
                       type="checkbox"
-                      defaultValue
+                      checked={formData.hasDisability}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          hasDisability: e.target.checked,
+                        })
+                      }
                       id="flexCheckDefault"
                     />
-                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                    <label
+                      className="form-check-label"
+                      htmlFor="flexCheckDefault"
+                    >
                       I have disability
                     </label>
                   </div>
@@ -302,10 +399,19 @@ const ApplicantProfile = () => {
                     <input
                       className="form-check-input check"
                       type="checkbox"
-                      defaultValue
-                      id="flexCheckDefault"
+                      checked={formData.partOfIndigenousGroup}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          partOfIndigenousGroup: e.target.checked,
+                        })
+                      }
+                      id="flexCheckDefault2"
                     />
-                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                    <label
+                      className="form-check-label"
+                      htmlFor="flexCheckDefault"
+                    >
                       I am part of an indigenous group
                     </label>
                   </div>
@@ -313,16 +419,16 @@ const ApplicantProfile = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Buttons to navigate */}
           <div className="d-flex justify-content-between mt-4">
             <Link to="/RegistrationForm">
-              <button type="submit" className="btn btn-success mt-4">
+              <button type="submit" className="btn btn-success mt-4" onClick={handleBack}>
                 Back Page
               </button>
             </Link>
             <Link to="/FamilyProfile">
-              <button type="submit" className="btn btn-success mt-4">
+              <button type="submit" className="btn btn-success mt-4" onClick={() => {handleSubmit(); handleNext();}}>
                 Next Page
               </button>
             </Link>

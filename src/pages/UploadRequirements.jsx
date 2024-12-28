@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader"; // Import the ProgressHeader component
-import styles from "../styles/ProgressHeader.module.css"; // Import CSS module for ProgressHeader
+import "../styles/ProgressHeader.module.css"; // Import CSS module for ProgressHeader
+import axios from "axios";
 
 const UploadRequirements = () => {
   useEffect(() => {
@@ -88,6 +89,26 @@ const UploadRequirements = () => {
     </label>
   );
 
+  const handleSubmit = async () => {
+    try {
+      // Prepare the data to send (assuming imagePreviews contains base64 encoded images)
+      const data = {
+        grade11_1st: imagePreviews.grade11_1st,
+        grade11_2nd: imagePreviews.grade11_2nd,
+        grade12_1st: imagePreviews.grade12_1st,
+        grade12_2nd: imagePreviews.grade12_2nd,
+        certificate_form_137: imagePreviews.certificate_form_137,
+      };
+
+      // Send the POST request
+      const response = await axios.post("/api/requirements", data);
+      console.log("Requirements saved:", response.data);
+    } catch (error) {
+      console.error("Error saving requirements:", error);
+      // Handle the error, e.g., display an error message to the user
+    }
+  };
+
   return (
     <div
       className="card shadow p-4"
@@ -98,73 +119,76 @@ const UploadRequirements = () => {
       }}
     >
       {/* Include ProgressHeader at the top */}
-      <ProgressHeader currentStep={currentStep} />
+      <ProgressHeader
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+      />
       <div
-          className="card shadow p-4"
-          style={{
-            borderRadius: "10px",
-            backgroundColor: "#ffffff",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
-        >
+        className="card shadow p-4"
+        style={{
+          borderRadius: "10px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h1 className="mb-4">
+          <i className="bi bi-paperclip"></i> Requirements
+        </h1>
+        <hr />
+        <form onSubmit={handleSubmit}>
+          {/* Grade 11 Report Card */}
+          <section className="mb-4">
+            <h5>Grade 11 Report Card</h5>
+            <div className="d-flex flex-wrap gap-3">
+              <div className="col-12 col-md-auto">
+                {renderUploadBox("grade11_1st", "1st Semester")}
+              </div>
+              <div className="col-12 col-md-auto">
+                {renderUploadBox("grade11_2nd", "2nd Semester")}
+              </div>
+            </div>
+          </section>
+          <hr />
 
-      <h1 className="mb-4">
-        <i className="bi bi-paperclip"></i> Requirements
-      </h1>
-      <hr />
+          {/* Grade 12 Report Card */}
+          <section className="mb-4">
+            <h5>Grade 12 Report Card</h5>
+            <div className="d-flex flex-wrap gap-3">
+              <div className="col-12 col-md-auto">
+                {renderUploadBox("grade12_1st", "1st Semester")}
+              </div>
+              <div className="col-12 col-md-auto">
+                {renderUploadBox("grade12_2nd", "2nd Semester")}
+              </div>
+            </div>
+          </section>
+          <hr />
 
-      {/* Grade 11 Report Card */}
-      <section className="mb-4">
-        <h5>Grade 11 Report Card</h5>
-        <div className="d-flex flex-wrap gap-3">
-          <div className="col-12 col-md-auto">
-            {renderUploadBox("grade11_1st", "1st Semester")}
-          </div>
-          <div className="col-12 col-md-auto">
-            {renderUploadBox("grade11_2nd", "2nd Semester")}
-          </div>
-        </div>
-      </section>
-      <hr />
+          {/* Certificate of Non-Issuance of Form 137 */}
+          <section className="mb-4">
+            <h5>Certificate of Non-Issuance of Form 137</h5>
+            <div className="row g-3">
+              <div className="col-md-6 text-center">
+                {renderUploadBox("certificate_form_137", "Upload Certificate")}
+              </div>
+            </div>
+          </section>
 
-      {/* Grade 12 Report Card */}
-      <section className="mb-4">
-        <h5>Grade 12 Report Card</h5>
-        <div className="d-flex flex-wrap gap-3">
-          <div className="col-12 col-md-auto">
-            {renderUploadBox("grade12_1st", "1st Semester")}
+          {/* Navigation Buttons */}
+          <div className="d-flex justify-content-between mt-4">
+            <Link to="/EducationalProfile">
+              <button type="submit" className="btn btn-success mt-4">
+                Back Page
+              </button>
+            </Link>
+            <Link to="/ScheduleAppointment">
+              <button type="submit" className="btn btn-success mt-4">
+                Next Page
+              </button>
+            </Link>
           </div>
-          <div className="col-12 col-md-auto">
-            {renderUploadBox("grade12_2nd", "2nd Semester")}
-          </div>
-        </div>
-      </section>
-      <hr />
-
-      {/* Certificate of Non-Issuance of Form 137 */}
-      <section className="mb-4">
-        <h5>Certificate of Non-Issuance of Form 137</h5>
-        <div className="row g-3">
-          <div className="col-md-6 text-center">
-            {renderUploadBox("certificate_form_137", "Upload Certificate")}
-          </div>
-        </div>
-      </section>
-
-      {/* Navigation Buttons */}
-      <div className="d-flex justify-content-between mt-4">
-        <Link to="/EducationalProfile">
-          <button type="submit" className="btn btn-success mt-4">
-            Back Page
-          </button>
-        </Link>
-        <Link to="/ScheduleAppointment">
-          <button type="submit" className="btn btn-success mt-4">
-            Next Page
-          </button>
-        </Link>
+        </form>
       </div>
-    </div>
     </div>
   );
 };

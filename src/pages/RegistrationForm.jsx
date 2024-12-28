@@ -1,17 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader";
 import styles from "../styles/RegistrationForm.module.css";
+import axios from "axios";
 
 const RegistrationForm = () => {
-  const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(0);
+  const [registrationData, setRegistrationData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/register"); // Use the correct endpoint
+        setRegistrationData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 1. Pre-fill form fields with existing data
+  useEffect(() => {
+    if (registrationData.length > 0) {
+      const latestRegistration = registrationData[registrationData.length - 1];
+      setFormData({
+        applicantType: latestRegistration.applicantType,
+        seniorHighTrack: latestRegistration.seniorHighTrack,
+        preferredProgram: latestRegistration.preferredProgram,
+        preferredCourse: latestRegistration.preferredCourse,
+      });
+    }
+  }, [registrationData]);
+
+  // Removed unused state variables
   const [formData, setFormData] = useState({
     applicantType: "",
     seniorHighTrack: "",
-    preferredProgram: "",
+    preferredProgram: "", // Corrected typo here
     preferredCourse: "",
   });
+
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // Load form data from session storage on component mount
+  useEffect(() => {
+    const storedFormData = sessionStorage.getItem("formData");
+    if (storedFormData) {
+      setFormData(JSON.parse(storedFormData));
+    }
+  }, []);
+
+  // Save form data to session storage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
 
   // Handle input changes for dropdowns
   const handleInputChange = (e) => {
@@ -20,7 +64,10 @@ const RegistrationForm = () => {
       ...prevData,
       [name]: value,
       // Reset dependent fields if parent field changes
-      ...(name === "applicantType" && { seniorHighTrack: "", preferredCourse: "" }),
+      ...(name === "applicantType" && {
+        seniorHighTrack: "",
+        preferredCourse: "",
+      }),
       ...(name === "seniorHighTrack" && { preferredCourse: "" }),
     }));
   };
@@ -36,6 +83,22 @@ const RegistrationForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // 2. Update existing data or create new data
+    if (registrationData.length > 0) {
+      const latestRegistrationId =
+        registrationData[registrationData.length - 1]._id;
+      axios
+        .put(`/api/register/${latestRegistrationId}`, formData)
+        .then((result) => console.log(result))
+        .catch((err) => console.log(err));
+    } else {
+      axios
+        .post("/api/register", formData)
+        .then((result) => console.log(result))
+        .catch((err) => console.log(err));
+    }
+
     goToNextPage();
   };
 
@@ -61,7 +124,9 @@ const RegistrationForm = () => {
             required
           >
             <option value="">Select</option>
-            <option value="Senior High School Graduate">Senior High School Graduate</option>
+            <option value="Senior High School Graduate">
+              Senior High School Graduate
+            </option>
             <option value="Transferee">Transferee</option>
           </select>
         </div>
@@ -100,7 +165,9 @@ const RegistrationForm = () => {
                 >
                   <option value="">Select</option>
                   <option value="Engineering">Computer Science - BSCS</option>
-                  <option value="Business Administration">Information Technology - IT</option>
+                  <option value="Business Administration">
+                    Information Technology - IT
+                  </option>
                 </select>
               </div>
             )}
@@ -119,15 +186,23 @@ const RegistrationForm = () => {
               required
             >
               <option value="">Choose your preferred program</option>
-              <option value="Computer Science - BSCS">Computer Science - BSCS</option>
-              <option value="Information Technology - BSIT">Information Technology - BSIT</option>
+              <option value="Computer Science - BSCS">
+                Computer Science - BSCS
+              </option>
+              <option value="Information Technology - BSIT">
+                Information Technology - BSIT
+              </option>
             </select>
           </div>
         )}
 
         {/* Buttons */}
         <div className={styles.buttons}>
-          <button type="button" onClick={handleCancel} className={styles.cancelButton}>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
             Reset
           </button>
           <button type="submit" className={styles.submitButton}>

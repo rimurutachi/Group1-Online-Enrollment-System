@@ -1,15 +1,16 @@
-import React from 'react';
-import Header from '../components/Header.jsx';
-import styles from '../styles/StudentPage.module.css'; // Importing as a module
+import React from "react";
+import Header from "../components/Header.jsx";
+import styles from "../styles/StudentPage.module.css"; // Importing as a module
 
 const StudentPage = () => {
   return (
-    <div className={styles.studentPage}> {/* Use styles from the module */}
+    <div className={styles.studentPage}>
+      {" "}
+      {/* Use styles from the module */}
       {/* Left Section */}
       <div className={styles.left}>
         <Header />
       </div>
-
       {/* Right Section */}
       <div className={styles.right}>
         <h2 className={styles.sectionTitle}>Student Login</h2>
