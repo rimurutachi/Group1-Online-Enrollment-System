@@ -11,16 +11,25 @@ const EducationalProfile = () => {
     try {
       const educationData = {
         elementary: {
-          schoolName: "your elementary school name",
-          // ... other elementary fields
+          schoolName: "",
+          schoolAddress: "",
+          schoolType: "",
+          yearGraduated: "",
+          
         },
         juniorHigh: {
-          schoolName: "your junior high school name",
-          // ... other junior high fields
+          schoolName: "",
+          schoolAddress: "",
+          schoolType: "",
+          track: "",
+          yearGraduated: "",
         },
         seniorHigh: {
-          schoolName: "your senior high school name",
-          // ... other senior high fields
+          schoolName: "",
+          schoolAddress: "",
+          schoolType: "",
+          courseProgram: "",
+          yearGraduated: "",
         },
       };
 

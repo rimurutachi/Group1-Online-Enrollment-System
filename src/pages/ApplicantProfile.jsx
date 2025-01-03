@@ -8,24 +8,25 @@ const ApplicantProfile = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    familyName: "",
     givenName: "",
     middleName: "",
     middleNameNotApplicable: false,
-    familyName: "",
     suffix: "",
-    sex: "",
-    age: "",
     dateOfBirth: "",
-    civilStatus: "",
     contactNumber: "",
     religion: "",
     nationality: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "",
+    sex: "",
+    age: "",
+    civilStatus: "",
+    emailAddress: "",
+    unitNumber: "",
+    streetName: "",
+    subBarangay: "",
+    cityMunicipality: "",
+    province: "",
+    zipCode: "",
     hasDisability: false,
     disabilityNature: "",
     partOfIndigenousGroup: false,
@@ -95,34 +96,37 @@ const ApplicantProfile = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post('/api/applicant', formData); 
-      console.log('Applicant data saved:', response.data);
+      const response = await axios.post("/api/applicant", formData);
+      console.log("Applicant data saved:", response.data);
       // Optionally, you can redirect to another page or show a success message
     } catch (error) {
-      console.error('Error saving applicant data:', error);
+      console.error("Error saving applicant data:", error);
       // Handle the error, e.g., display an error message to the user
     }
   };
 
   // To fetch the data:
-useEffect(() => {
-  const fetchApplicants = async () => {
-    try {
-      const response = await axios.get('/api/applicants');
-      console.log('Applicants:', response.data); 
-      // Update state with the fetched applicant data
-    } catch (error) {
-      console.error('Error fetching applicants:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      try {
+        const response = await axios.get("/api/applicants");
+        console.log("Applicants:", response.data);
+        // Update state with the fetched applicant data
+      } catch (error) {
+        console.error("Error fetching applicants:", error);
+      }
+    };
 
-  fetchApplicants(); 
-}, []);
+    fetchApplicants();
+  }, []);
 
   return (
     <div>
       {/* ProgressHeader displayed at the top */}
-      <ProgressHeader currentStep={currentStep} setCurrentStep={setCurrentStep} />
+      <ProgressHeader
+        currentStep={currentStep}
+        setCurrentStep={setCurrentStep}
+      />
 
       {/* Main Content */}
       <div
@@ -335,7 +339,14 @@ useEffect(() => {
                 </div>
                 <div className="col-md-6">
                   <label className="form-label">Email Address:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.emailAddress}
+                    onChange={(e) =>
+                      setFormData({ ...formData, emailAddress: e.target.value })
+                    }
+                  />
                 </div>
               </div>
 
@@ -346,27 +357,72 @@ useEffect(() => {
               <div className="row g-3 mt-3">
                 <div className="col-md-4">
                   <label className="form-label">Unit Number:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.unitNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, unitNumber: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Street Name:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.streetName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, streetName: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Subdivision/Barangay:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.subBarangay}
+                    onChange={(e) =>
+                      setFormData({ ...formData, subBarangay: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">City/Municipality:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.cityMunicipality}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        cityMunicipality: e.target.value,
+                      })
+                    }
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Province:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.province}
+                    onChange={(e) =>
+                      setFormData({ ...formData, province: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Zip Code:</label>
-                  <input type="text" className="form-control" />
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.zipCode}
+                    onChange={(e) =>
+                      setFormData({ ...formData, zipCode: e.target.value })
+                    }
+                  />
                 </div>
               </div>
 
@@ -423,12 +479,23 @@ useEffect(() => {
           {/* Buttons to navigate */}
           <div className="d-flex justify-content-between mt-4">
             <Link to="/RegistrationForm">
-              <button type="submit" className="btn btn-success mt-4" onClick={handleBack}>
+              <button
+                type="submit"
+                className="btn btn-success mt-4"
+                onClick={handleBack}
+              >
                 Back Page
               </button>
             </Link>
             <Link to="/FamilyProfile">
-              <button type="submit" className="btn btn-success mt-4" onClick={() => {handleSubmit(); handleNext();}}>
+              <button
+                type="submit"
+                className="btn btn-success mt-4"
+                onClick={() => {
+                  handleSubmit();
+                  handleNext();
+                }}
+              >
                 Next Page
               </button>
             </Link>

@@ -110,7 +110,7 @@ const RegistrationForm = () => {
   return (
     <div className={styles.container}>
       <ProgressHeader currentStep={currentStep} />
-      <form className={styles.form} onSubmit={handleSubmit}>
+      <form className={styles.form}>
         <h2 className={styles.formTitle}>Application Details</h2>
 
         {/* Applicant Type */}
@@ -205,7 +205,11 @@ const RegistrationForm = () => {
           >
             Reset
           </button>
-          <button type="submit" className={styles.submitButton}>
+          <button
+            type="submit"
+            className={styles.submitButton}
+            onClick={handleSubmit}
+          >
             Submit
           </button>
         </div>
