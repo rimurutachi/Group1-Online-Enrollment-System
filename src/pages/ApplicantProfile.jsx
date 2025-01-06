@@ -96,7 +96,7 @@ const ApplicantProfile = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post("/api/applicant", formData);
+      const response = await axios.post("/ApplicantProfile", formData);
       console.log("Applicant data saved:", response.data);
       // Optionally, you can redirect to another page or show a success message
     } catch (error) {
@@ -109,7 +109,7 @@ const ApplicantProfile = () => {
   useEffect(() => {
     const fetchApplicants = async () => {
       try {
-        const response = await axios.get("/api/applicants");
+        const response = await axios.get("/ApplicantProfile");
         console.log("Applicants:", response.data);
         // Update state with the fetched applicant data
       } catch (error) {

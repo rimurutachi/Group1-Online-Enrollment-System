@@ -92,7 +92,7 @@ const UploadRequirements = () => {
   const handleSubmit = async () => {
     try {
       // Prepare the data to send (assuming imagePreviews contains base64 encoded images)
-      const data = {
+      const requirementData = {
         grade11_1st: imagePreviews.grade11_1st,
         grade11_2nd: imagePreviews.grade11_2nd,
         grade12_1st: imagePreviews.grade12_1st,
@@ -101,7 +101,7 @@ const UploadRequirements = () => {
       };
 
       // Send the POST request
-      const response = await axios.post("/api/requirements", data);
+      const response = await axios.post("/UploadRequirements", requirementData);
       console.log("Requirements saved:", response.data);
     } catch (error) {
       console.error("Error saving requirements:", error);

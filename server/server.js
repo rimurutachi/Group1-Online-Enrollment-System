@@ -4,7 +4,7 @@ const app = express();
 const cors = require("cors");
 const connectDB = require("./db.js");
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173"]
 };
 
 app.use(cors(corsOptions));
@@ -35,7 +35,7 @@ const ApplicantSchema = new mongoose.Schema({
   religion: String,
   nationality: String,
   sex: String,
-  age: String,
+  age: Number,
   civilStatus: String,
   emailAddress: String,
   unitNumber: String,
@@ -129,7 +129,7 @@ const Schedule = mongoose.model("Schedule", ScheduleSchema);
 // FETCH AND SAVE EACH PART OF ADMISSION //
 
 // Your registration (1) endpoint
-app.post("/api/register", async (req, res) => {
+app.post("/RegistrationForm", async (req, res) => {
   try {
     const {
       applicantType,
@@ -143,7 +143,7 @@ app.post("/api/register", async (req, res) => {
       applicantType,
       seniorHighTrack,
       preferredProgram,
-      preferredCourse,
+      preferredCourse
     });
 
     // Save the register (1) to the database
@@ -157,7 +157,7 @@ app.post("/api/register", async (req, res) => {
 });
 
 // Fetch register (1) endpoint
-app.get("/api/register", async (req, res) => {
+app.get("/RegistrationForm", async (res) => {
   try {
     const registers = await Register.find();
     res.json(registers);
@@ -168,7 +168,7 @@ app.get("/api/register", async (req, res) => {
 });
 
 // API endpoint to save applicant (2) data
-app.post("/api/applicant", async (req, res) => {
+app.post("/ApplicantProfile", async (req, res) => {
   try {
     const newApplicant = new Applicant(req.body);
     await newApplicant.save();
@@ -180,7 +180,7 @@ app.post("/api/applicant", async (req, res) => {
 });
 
 // API endpoint to fetch applicant (2) data
-app.get("/api/applicants", async (req, res) => {
+app.get("/ApplicantProfile", async (res) => {
   try {
     const applicants = await Applicant.find();
     res.json(applicants);
@@ -191,7 +191,7 @@ app.get("/api/applicants", async (req, res) => {
 });
 
 // API endpoint to save family profile (3) data
-app.post("/api/family-profile", async (req, res) => {
+app.post("/FamilyProfile", async (req, res) => {
   try {
     const newFamily = new Family(req.body);
     await newFamily.save();
@@ -203,7 +203,7 @@ app.post("/api/family-profile", async (req, res) => {
 });
 
 // API endpoint to fetch family profile (3) data
-app.get("/api/family-profile", async (req, res) => {
+app.get("/FamilyProfile", async (res) => {
   try {
     const family = await Family.find();
     res.json(family);
@@ -214,7 +214,7 @@ app.get("/api/family-profile", async (req, res) => {
 });
 
 // API endpoint to save educational profile (4) data
-app.post("/api/education-profile", async (req, res) => {
+app.post("/EducationalProfile", async (req, res) => {
   try {
     const newEducation = new Education(req.body);
     await newEducation.save();
@@ -226,7 +226,7 @@ app.post("/api/education-profile", async (req, res) => {
 });
 
 // API endpoint to fetch educational profile (4) data
-app.get("/api/education-profile", async (req, res) => {
+app.get("EducationalProfile", async (res) => {
   try {
     const education = await Education.find();
     res.json(education);
@@ -237,7 +237,7 @@ app.get("/api/education-profile", async (req, res) => {
 });
 
 // API endpoint to save requirements (5) data
-app.post("/api/requirements", async (req, res) => {
+app.post("/UploadRequirements", async (req, res) => {
   try {
     const newRequirement = new Requirement(req.body);
     await newRequirement.save();
@@ -249,7 +249,7 @@ app.post("/api/requirements", async (req, res) => {
 });
 
 // API endpoint to fetch requirements (5) data
-app.get("/api/requirements", async (req, res) => {
+app.get("/UploadRequirements", async (res) => {
   try {
     const requirements = await Requirement.find();
     res.json(requirements);
@@ -260,7 +260,7 @@ app.get("/api/requirements", async (req, res) => {
 });
 
 // API endpoint to save schedule appointment (6) data
-app.post("/api/schedule", async (req, res) => {
+app.post("/ScheduleAppointment", async (req, res) => {
   try {
     const newSchedule = new Schedule(req.body);
     await newSchedule.save();
@@ -272,7 +272,7 @@ app.post("/api/schedule", async (req, res) => {
 });
 
 // API endpoint to fetch schedule appointment (6) data
-app.get("/api/schedule", async (req, res) => {
+app.get("/ScheduleAppointment", async (res) => {
   try {
     const schedule = await Schedule.find();
     res.json(schedule);

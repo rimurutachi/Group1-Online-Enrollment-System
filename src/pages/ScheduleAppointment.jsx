@@ -29,7 +29,7 @@ const ScheduleAppointment = () => {
     e.preventDefault();
 
     try {
-      await axios.post("/api/schedule", formData);
+      await axios.post("/ScheduleAppointment", formData);
       console.log("Schedule saved:", formData);
 
       // Show SweetAlert2 notification

@@ -33,7 +33,7 @@ const EducationalProfile = () => {
         },
       };
 
-      await axios.post("/api/education-profile", educationData);
+      await axios.post("/EducationalProfile", educationData);
       // Optionally, handle success (e.g., show a success message)
     } catch (error) {
       console.error("Error submitting education data:", error);

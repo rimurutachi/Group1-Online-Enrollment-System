@@ -5,13 +5,13 @@ import styles from "../styles/RegistrationForm.module.css";
 import axios from "axios";
 
 const RegistrationForm = () => {
-  const [registrationData, setRegistrationData] = useState([]);
+  const [registerData, setRegisterData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("/api/register"); // Use the correct endpoint
-        setRegistrationData(response.data);
+        const response = await axios.get("/RegistrationForm"); // Use the correct endpoint
+        setRegisterData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -22,8 +22,8 @@ const RegistrationForm = () => {
 
   // 1. Pre-fill form fields with existing data
   useEffect(() => {
-    if (registrationData.length > 0) {
-      const latestRegistration = registrationData[registrationData.length - 1];
+    if (registerData.length > 0) {
+      const latestRegistration = registerData[registerData.length - 1];
       setFormData({
         applicantType: latestRegistration.applicantType,
         seniorHighTrack: latestRegistration.seniorHighTrack,
@@ -31,7 +31,7 @@ const RegistrationForm = () => {
         preferredCourse: latestRegistration.preferredCourse,
       });
     }
-  }, [registrationData]);
+  }, [registerData]);
 
   // Removed unused state variables
   const [formData, setFormData] = useState({
@@ -85,16 +85,16 @@ const RegistrationForm = () => {
     e.preventDefault();
 
     // 2. Update existing data or create new data
-    if (registrationData.length > 0) {
+    if (registerData.length > 0) {
       const latestRegistrationId =
-        registrationData[registrationData.length - 1]._id;
+        registerData[registerData.length - 1]._id;
       axios
-        .put(`/api/register/${latestRegistrationId}`, formData)
+        .put(`/RegistrationForm/${latestRegistrationId}`, formData)
         .then((result) => console.log(result))
         .catch((err) => console.log(err));
     } else {
       axios
-        .post("/api/register", formData)
+        .post("/RegistrationForm", formData)
         .then((result) => console.log(result))
         .catch((err) => console.log(err));
     }

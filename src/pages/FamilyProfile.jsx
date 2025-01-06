@@ -29,8 +29,8 @@ const FamilyProfile = () => {
   // Example function to save family profile data
   const saveFamilyProfile = async (familyData) => {
     try {
-      const response = await axios.post("/api/family-profile", familyData);
-      console.log("Family profile saved:", response.data);
+      const response = await axios.post("/FamilyProfile", familyData);
+      console.log("Family profile saved:", response.familyData);
     } catch (error) {
       console.error("Error saving family profile:", error);
     }
@@ -39,7 +39,7 @@ const FamilyProfile = () => {
   // Example function to fetch family profile data
   const fetchFamilyProfile = async () => {
     try {
-      const response = await axios.get("/api/family-profile");
+      const response = await axios.get("/FamilyProfile");
       console.log("Family profiles:", response.data);
       return response.data;
     } catch (error) {
