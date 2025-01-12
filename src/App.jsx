@@ -10,6 +10,15 @@ import FamilyProfile from './pages/FamilyProfile.jsx';
 import EducationalProfile from './pages/EducationalProfile.jsx';
 import UploadRequirements from './pages/UploadRequirements.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
+import StudentPageNavbar from './components/StudentPageNavbar.jsx';
+import StudentPageHome from './pages/StudentPageHome.jsx';
+import StduentPageEnrollment from './pages/StudentPageEnrollment.jsx';
+import StudentPageAccounts from './pages/StudentPageAccounts.jsx';
+import StudentPageSchedule from './pages/StudentPageSchedule.jsx';
+import StudentPageGrades from './pages/StudentPageGrades.jsx';
+import StudentPageProfile from './pages/StudentPageProfile.jsx';
+import StudentPageChangePass from './pages/StudentPageChangePass.jsx';
+import StudentPageInboxDetail from './pages/StudentPageInboxDetail.jsx';
 import axios from 'axios';
 
 function App() {
@@ -62,6 +71,14 @@ function App() {
         <Route path="/EducationalProfile" element={<EducationalProfile />} />
         <Route path="/UploadRequirements" element={<UploadRequirements />} />
         <Route path="/ScheduleAppointment" element={<ScheduleAppointment />} />
+        <Route path="/StudentPageHome" element={<StudentPageHome />} />
+        <Route path="/StudentPageEnrollment" element={<StduentPageEnrollment />} />
+        <Route path="/StudentPageAccounts" element={<StudentPageAccounts />} />
+        <Route path="/StudentPageSchedule" element={<StudentPageSchedule />} />
+        <Route path="/StudentPageGrades" element={<StudentPageGrades />} />
+        <Route path="/StudentPageProfile" element={<StudentPageProfile />} />
+        <Route path="/StudentPageChangePass" element={<StudentPageChangePass />} />
+        <Route path="/StudentPageInboxDetail" element={<StudentPageInboxDetail />} />
       </Routes>
     </Router>
   );
