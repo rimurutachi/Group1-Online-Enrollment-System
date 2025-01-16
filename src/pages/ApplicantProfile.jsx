@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader";
 import "../styles/ApplicantProfile.module.css";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const ApplicantProfile = () => {
   const navigate = useNavigate();
@@ -11,7 +12,6 @@ const ApplicantProfile = () => {
     familyName: "",
     givenName: "",
     middleName: "",
-    middleNameNotApplicable: false,
     suffix: "",
     dateOfBirth: "",
     contactNumber: "",
@@ -28,16 +28,14 @@ const ApplicantProfile = () => {
     province: "",
     zipCode: "",
     hasDisability: false,
-    disabilityNature: "",
     partOfIndigenousGroup: false,
-    indigenousGroup: "",
     photo: null, // state to hold photo data
   });
 
   const [imagePreview, setImagePreview] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // State for tracking the current step
+ 
   const [currentStep, setCurrentStep] = useState(1); // Set current step to 2 (Applicant Profile)
 
   // Handle image change for preview
@@ -50,7 +48,9 @@ const ApplicantProfile = () => {
         setErrorMessage(
           "File size exceeds 200 KB. Please upload a smaller image."
         );
-        e.target.value = ""; // Clear the file input to allow the user to select another file
+        setFormData({
+          ...formData, photo: file,
+        }) // Clear the file input to allow the user to select another file
         return;
       }
 
@@ -66,8 +66,10 @@ const ApplicantProfile = () => {
 
   // Trigger file input click
   const handlePreviewClick = () => {
-    document.getElementById("fileInput").click();
+    fileInputRef.current.click();
   };
+
+  const fileInputRef = useRef(null);
 
   // Handle navigation to the previous page
   const handleBack = () => {
@@ -75,50 +77,71 @@ const ApplicantProfile = () => {
     navigate("/RegistrationForm");
   };
 
-  // Handle navigation to the next page
-  const handleNext = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const {
+      familyName,
+      givenName,
+      middleName,
+      suffix,
+      dateOfBirth,
+      contactNumber,
+      religion,
+      nationality,
+      sex,
+      age,
+      civilStatus,
+      emailAddress,
+      unitNumber,
+      streetName,
+      subBarangay,
+      cityMunicipality,
+      province,
+      zipCode,
+      hasDisability,
+      partOfIndigenousGroup,
+      photo,
+    } = formData;
+    try {
+      const { formData } = await axios.post("/Applicant", {
+        familyName,
+        givenName,
+        middleName,
+        suffix,
+        dateOfBirth,
+        contactNumber,
+        religion,
+        nationality,
+        sex,
+        age,
+        civilStatus,
+        emailAddress,
+        unitNumber,
+        streetName,
+        subBarangay,
+        cityMunicipality,
+        province,
+        zipCode,
+        hasDisability,
+        partOfIndigenousGroup,
+        photo,
+      });
+      if (formData.error) {
+        toast.error("Error!");
+      } else {
+        setFormData({});
+        toast.success("Applicant Profile submitted successfully!");
+      }
+    } catch (error) {
+      console.log("Error!");
+    }
+    goToNextPage();
+  };
+
+  const goToNextPage = () => {
     setCurrentStep(1);
     navigate("/FamilyProfile");
   };
-
-  // Load form data from session storage on component mount
-  useEffect(() => {
-    const storedFormData = sessionStorage.getItem("formData");
-    if (storedFormData) {
-      setFormData(JSON.parse(storedFormData));
-    }
-  }, []);
-
-  // Save form data to session storage whenever it changes
-  useEffect(() => {
-    sessionStorage.setItem("formData", JSON.stringify(formData));
-  }, [formData]);
-
-  const handleSubmit = async () => {
-    try {
-      const response = await axios.post("/ApplicantProfile", formData);
-      console.log("Applicant data saved:", response.data);
-      // Optionally, you can redirect to another page or show a success message
-    } catch (error) {
-      console.error("Error saving applicant data:", error);
-      // Handle the error, e.g., display an error message to the user
-    }
-  };
-
-  // To fetch the data:
-  useEffect(() => {
-    const fetchApplicants = async () => {
-      try {
-        const response = await axios.get("/ApplicantProfile");
-        console.log("Applicants:", response.data);
-        // Update state with the fetched applicant data
-      } catch (error) {
-        console.error("Error fetching applicants:", error);
-      }
-    };
-
-    fetchApplicants();
-  }, []);
 
   return (
     <div>
@@ -127,17 +150,16 @@ const ApplicantProfile = () => {
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
-
-      {/* Main Content */}
-      <div
-        className="card shadow p-4"
-        style={{
-          borderRadius: "10px",
-          backgroundColor: "#ffffff",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <form>
+      <form onSubmit={handleSubmit}>
+        {/* Main Content */}
+        <div
+          className="card shadow p-4"
+          style={{
+            borderRadius: "10px",
+            backgroundColor: "#ffffff",
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
           <h1 className="mb-4 text-center">
             <i className="bi bi-person-fill"></i> Personal Information
           </h1>
@@ -181,6 +203,7 @@ const ApplicantProfile = () => {
                 type="file"
                 className="form-control d-none"
                 accept="image/*"
+                ref={fileInputRef}
                 onChange={handleImageChange}
               />
               {/* Center the label */}
@@ -488,20 +511,13 @@ const ApplicantProfile = () => {
               </button>
             </Link>
             <Link to="/FamilyProfile">
-              <button
-                type="submit"
-                className="btn btn-success mt-4"
-                onClick={() => {
-                  handleSubmit();
-                  handleNext();
-                }}
-              >
+              <button type="submit" className="btn btn-success mt-4" onClick={handleSubmit}>
                 Next Page
               </button>
             </Link>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

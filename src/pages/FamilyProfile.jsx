@@ -1,95 +1,106 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const FamilyProfile = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(2);
-  const [siblings, setSiblings] = useState([{ fullName: "", age: "" }]);
+
+  const [formData, setFormData] = useState({
+    parent1Name: "",
+    parent1Relationship: "",
+    parent1Education: "",
+    parent1Occupation: "",
+    parent1Employer: "",
+    parent1Income: "",
+    parent1Contact: "",
+    parent2Name: "",
+    parent2Relationship: "",
+    parent2Education: "",
+    parent2Occupation: "",
+    parent2Employer: "",
+    parent2Income: "",
+    parent2Contact: "",
+    guardianName: "",
+    guardianRelationship: "",
+    guardianEducation: "",
+    guardianOccupation: "",
+    guardianEmployer: "",
+    guardianIncome: "",
+    guardianContact: "",
+    siblings: "",
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const handleAddSibling = () => {
-    setSiblings([...siblings, { fullName: "", age: "" }]);
-  };
-
-  const handleRemoveSibling = (index) => {
-    const updatedSiblings = siblings.filter((_, i) => i !== index);
-    setSiblings(updatedSiblings);
-  };
-
-  const handleSiblingChange = (index, field, value) => {
-    const updatedSiblings = [...siblings];
-    updatedSiblings[index][field] = value;
-    setSiblings(updatedSiblings);
-  };
-
-  // Example function to save family profile data
-  const saveFamilyProfile = async (familyData) => {
-    try {
-      const response = await axios.post("/FamilyProfile", familyData);
-      console.log("Family profile saved:", response.familyData);
-    } catch (error) {
-      console.error("Error saving family profile:", error);
-    }
-  };
-
-  // Example function to fetch family profile data
-  const fetchFamilyProfile = async () => {
-    try {
-      const response = await axios.get("/FamilyProfile");
-      console.log("Family profiles:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching family profiles:", error);
-    }
-  };
-
   // Handle form submission
-  const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-
-    // Gather all the family data from the form fields
-    const familyData = {
-      parent1Name: "",
-      parent1Relationship: "",
-      parent1Education: "",
-      parent1Occupation: "",
-      parent1Employer: "",
-      parent1Income: "",
-      parent1Contact: "",
-      parent2Name: "",
-      parent2Relationship: "",
-      parent2Education: "",
-      parent2Occupation: "",
-      parent2Employer: "",
-      parent2Income: "",
-      parent2Contact: "",
-      guardianName: "",
-      guardianRelationship: "",
-      guardianEducation: "",
-      guardianOccupation: "",
-      guardianEmployer: "",
-      guardianIncome: "",
-      guardianContact: "",
-      siblings: siblings,
-    };
-
-    // Call the saveFamilyProfile function to send the data to the backend
-    await saveFamilyProfile(familyData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const {
+      parent1Name,
+      parent1Education,
+      parent1Occupation,
+      parent1Employer,
+      parent1Income,
+      parent1Contact,
+      parent2Name,
+      parent2Education,
+      parent2Occupation,
+      parent2Employer,
+      parent2Income,
+      parent2Contact,
+      guardianName,
+      guardianRelationship,
+      guardianEducation,
+      guardianOccupation,
+      guardianEmployer,
+      guardianIncome,
+      guardianContact,
+      siblings,
+    } = formData;
+    try {
+      const { formData } = await axios.post("/Family", {
+        parent1Name,
+        parent1Education,
+        parent1Occupation,
+        parent1Employer,
+        parent1Income,
+        parent1Contact,
+        parent2Name,
+        parent2Education,
+        parent2Occupation,
+        parent2Employer,
+        parent2Income,
+        parent2Contact,
+        guardianName,
+        guardianRelationship,
+        guardianEducation,
+        guardianOccupation,
+        guardianEmployer,
+        guardianIncome,
+        guardianContact,
+        siblings,
+      });
+      if (formData.error) {
+        toast.error("Error!");
+      } else {
+        setFormData({});
+        toast.success("Family information submitted successfully!");
+      }
+    } catch (error) {
+      console.log("Error!");
+    }
+    goToNextPage();
   };
 
-  // Example of how to use fetchFamilyProfile (e.g., in a useEffect)
-  useEffect(() => {
-    const getFamilyData = async () => {
-      const data = await fetchFamilyProfile();
-      // Do something with the fetched data, e.g., pre-fill the form
-    };
-
-    getFamilyData();
-  }, []); // Empty dependency array means this runs once when the component mounts
+  const goToNextPage = () => {
+    setCurrentStep(2);
+    navigate("/EducationalProfile");
+  };
 
   return (
     <div
@@ -100,84 +111,193 @@ const FamilyProfile = () => {
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
-
-      <div
-        className="card shadow p-4"
-        style={{
-          borderRadius: "10px",
-          backgroundColor: "#ffffff",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          flex: 1,
-          overflowY: "auto",
-        }}
-      >
-        <h1 className="mb-4">
-          <i className="bi bi-people-fill"></i> Family Background
-        </h1>
-        <hr className="divider" />
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <div
+          className="card shadow p-4"
+          style={{
+            borderRadius: "10px",
+            backgroundColor: "#ffffff",
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            flex: 1,
+            overflowY: "auto",
+          }}
+        >
+          <h1 className="mb-4">
+            <i className="bi bi-people-fill"></i> Family Background
+          </h1>
+          <hr className="divider" />
           <div className="row">
             <div className="col-md-6">
-              <h5>Parent 1</h5>
+              <h5>Mother's Information:</h5>
               <div className="mb-3">
                 <label className="form-label">Name:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent1Name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent1Name: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
-                <label className="form-label">Relationship:</label>
-                <input type="text" className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Highest Education:</label>
-                <input type="text" className="form-control" />
+                <label className="form-label">Educational Attainment:</label>
+                <select
+                  className="form-select"
+                  aria-label="Educational Attainment"
+                  value={formData.parent1Education}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent1Education: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select:</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="Junior High School">Junior High School</option>
+                  <option value="Senior High School">Senior High School</option>
+                  <option value="Undergraduate">Undergraduate</option>
+                  <option value="Post-Graduate">Post-Graduate</option>
+                </select>
               </div>
               <div className="mb-3">
                 <label className="form-label">Occupation:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent1Occupation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent1Occupation: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Employer:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Fill if employed."
+                  value={formData.parent1Employer}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent1Employer: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Monthly Income:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.parent1Income}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent1Income: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Contact Number:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent1Contact}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent1Contact: e.target.value })
+                  }
+                />
               </div>
             </div>
 
             <div className="col-md-6">
-              <h5>Parent 2</h5>
+              <h5>Father's Information:</h5>
               <div className="mb-3">
                 <label className="form-label">Name:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent2Name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent2Name: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
-                <label className="form-label">Relationship:</label>
-                <input type="text" className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Highest Education:</label>
-                <input type="text" className="form-control" />
+                <label className="form-label">Educational Attainment:</label>
+                <select
+                  className="form-select"
+                  aria-label="Educational Attainment"
+                  value={formData.parent2Education}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent2Education: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select:</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="Junior High School">Junior High School</option>
+                  <option value="Senior High School">Senior High School</option>
+                  <option value="Undergraduate">Undergraduate</option>
+                  <option value="Post-Graduate">Post-Graduate</option>
+                </select>
               </div>
               <div className="mb-3">
                 <label className="form-label">Occupation:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent2Occupation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent2Occupation: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Employer:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Fill if employed."
+                  value={formData.parent2Employer}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      parent2Employer: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Monthly Income:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.parent2Income}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent2Income: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Contact Number:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.parent2Contact}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parent2Contact: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>
@@ -188,79 +308,123 @@ const FamilyProfile = () => {
               <h4 className="mb-3">Guardian</h4>
               <div className="mb-3">
                 <label className="form-label">Name:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.guardianName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, guardianName: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Relationship:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.guardianRelationship}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      guardianRelationship: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
-                <label className="form-label">Highest Education:</label>
-                <input type="text" className="form-control" />
+                <label className="form-label">Educational Attainment:</label>
+                <select
+                  className="form-select"
+                  aria-label="Educational Attainment"
+                  value={formData.guardianEducation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      guardianEducation: e.target.value,
+                    })
+                  }
+                >
+                  <option value="">Select:</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="Junior High School">Junior High School</option>
+                  <option value="Senior High School">Senior High School</option>
+                  <option value="Undergraduate">Undergraduate</option>
+                  <option value="Post-Graduate">Post-Graduate</option>
+                </select>
               </div>
               <div className="mb-3">
                 <label className="form-label">Occupation:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.guardianOccupation}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      guardianOccupation: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Employer:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Fill if employed."
+                  value={formData.guardianEmployer}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      guardianEmployer: e.target.value,
+                    })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Monthly Income:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formData.guardianIncome}
+                  onChange={(e) =>
+                    setFormData({ ...formData, guardianIncome: e.target.value })
+                  }
+                />
               </div>
               <div className="mb-3">
                 <label className="form-label">Contact Number:</label>
-                <input type="text" className="form-control" />
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.guardianContact}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      guardianContact: e.target.value,
+                    })
+                  }
+                />
               </div>
             </div>
 
             <div className="col-md-6">
               <h4 className="mb-3">Siblings</h4>
-              {siblings.map((sibling, index) => (
-                <div className="d-flex align-items-center mb-3" key={index}>
-                  <span className="me-2">{index + 1}</span>
-                  <div className="me-2" style={{ flex: 1 }}>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Full Name"
-                      value={sibling.fullName}
-                      onChange={(e) =>
-                        handleSiblingChange(index, "fullName", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="me-2" style={{ width: "100px" }}>
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="Age"
-                      value={sibling.age}
-                      onChange={(e) =>
-                        handleSiblingChange(index, "age", e.target.value)
-                      }
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-success me-2"
-                    onClick={handleAddSibling}
-                  >
-                    +
-                  </button>
-                  {siblings.length > 1 && (
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      onClick={() => handleRemoveSibling(index)}
-                    >
-                      -
-                    </button>
-                  )}
-                </div>
-              ))}
+              <div className="mb-3">
+                <label className="form-label">Number of Siblings:</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Place N/A if none."
+                  value={formData.siblings}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      siblings: e.target.value,
+                    })
+                  }
+                />
+              </div>
             </div>
           </div>
 
@@ -269,13 +433,17 @@ const FamilyProfile = () => {
               <button className="btn btn-success mt-4">Back Page</button>
             </Link>
             <Link to="/EducationalProfile">
-              <button type="submit" className="btn btn-success mt-4">
+              <button
+                type="submit"
+                className="btn btn-success mt-4"
+                onClick={handleSubmit}
+              >
                 Next Page
               </button>
             </Link>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

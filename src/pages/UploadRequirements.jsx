@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader"; // Import the ProgressHeader component
 import "../styles/ProgressHeader.module.css"; // Import CSS module for ProgressHeader
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const UploadRequirements = () => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    grade11_1st: null,
+    grade11_2nd: null,
+    grade12_1st: null,
+    grade12_2nd: null,
+    certificate_form_137: null,
+  });
+
   useEffect(() => {
     // Scroll to the top when the component is mounted
     window.scrollTo(0, 0);
@@ -17,6 +28,10 @@ const UploadRequirements = () => {
   const handleImageChange = (e, key) => {
     const file = e.target.files[0];
     if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        [key]: file,
+      }));
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreviews((prev) => ({
@@ -35,6 +50,10 @@ const UploadRequirements = () => {
       delete updated[key];
       return updated;
     });
+    setFormData((prev) => ({
+      ...prev,
+      [key]: null, // Clear the file from formData
+    }));
   };
 
   // Render Upload Box
@@ -89,24 +108,38 @@ const UploadRequirements = () => {
     </label>
   );
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const {
+      grade11_1st,
+      grade11_2nd,
+      grade12_1st,
+      grade12_2nd,
+      certificate_form_137,
+    } = formData;
     try {
-      // Prepare the data to send (assuming imagePreviews contains base64 encoded images)
-      const requirementData = {
-        grade11_1st: imagePreviews.grade11_1st,
-        grade11_2nd: imagePreviews.grade11_2nd,
-        grade12_1st: imagePreviews.grade12_1st,
-        grade12_2nd: imagePreviews.grade12_2nd,
-        certificate_form_137: imagePreviews.certificate_form_137,
-      };
-
-      // Send the POST request
-      const response = await axios.post("/UploadRequirements", requirementData);
-      console.log("Requirements saved:", response.data);
+      const { formData } = await axios.post("/Requirement", {
+        grade11_1st,
+        grade11_2nd,
+        grade12_1st,
+        grade12_2nd,
+        certificate_form_137,
+      });
+      if (formData.error) {
+        toast.error("Error!");
+      } else {
+        setFormData({});
+        toast.success("Requirements submitted successfully!");
+      }
     } catch (error) {
-      console.error("Error saving requirements:", error);
-      // Handle the error, e.g., display an error message to the user
+      console.log("Error!");
     }
+    goToNextPage();
+  };
+
+  const goToNextPage = () => {
+    setCurrentStep(4);
+    navigate("/ScheduleAppointment");
   };
 
   return (
@@ -123,19 +156,19 @@ const UploadRequirements = () => {
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
-      <div
-        className="card shadow p-4"
-        style={{
-          borderRadius: "10px",
-          backgroundColor: "#ffffff",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h1 className="mb-4">
-          <i className="bi bi-paperclip"></i> Requirements
-        </h1>
-        <hr />
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <div
+          className="card shadow p-4"
+          style={{
+            borderRadius: "10px",
+            backgroundColor: "#ffffff",
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <h1 className="mb-4">
+            <i className="bi bi-paperclip"></i> Requirements
+          </h1>
+          <hr />
           {/* Grade 11 Report Card */}
           <section className="mb-4">
             <h5>Grade 11 Report Card</h5>
@@ -182,13 +215,13 @@ const UploadRequirements = () => {
               </button>
             </Link>
             <Link to="/ScheduleAppointment">
-              <button type="submit" className="btn btn-success mt-4">
+              <button type="submit" className="btn btn-success mt-4" onClick={handleSubmit}>
                 Next Page
               </button>
             </Link>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };

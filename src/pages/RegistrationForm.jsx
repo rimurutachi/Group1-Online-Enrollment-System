@@ -3,59 +3,19 @@ import { useNavigate } from "react-router-dom";
 import ProgressHeader from "./ProgressHeader";
 import styles from "../styles/RegistrationForm.module.css";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const RegistrationForm = () => {
-  const [registerData, setRegisterData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/RegistrationForm"); // Use the correct endpoint
-        setRegisterData(response.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // 1. Pre-fill form fields with existing data
-  useEffect(() => {
-    if (registerData.length > 0) {
-      const latestRegistration = registerData[registerData.length - 1];
-      setFormData({
-        applicantType: latestRegistration.applicantType,
-        seniorHighTrack: latestRegistration.seniorHighTrack,
-        preferredProgram: latestRegistration.preferredProgram,
-        preferredCourse: latestRegistration.preferredCourse,
-      });
-    }
-  }, [registerData]);
-
-  // Removed unused state variables
-  const [formData, setFormData] = useState({
-    applicantType: "",
-    seniorHighTrack: "",
-    preferredProgram: "", // Corrected typo here
-    preferredCourse: "",
-  });
-
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
 
-  // Load form data from session storage on component mount
-  useEffect(() => {
-    const storedFormData = sessionStorage.getItem("formData");
-    if (storedFormData) {
-      setFormData(JSON.parse(storedFormData));
-    }
-  }, []);
-
-  // Save form data to session storage whenever it changes
-  useEffect(() => {
-    sessionStorage.setItem("formData", JSON.stringify(formData));
-  }, [formData]);
+  const [formData, setFormData] = useState({
+    registerID: "",
+    applicantType: "",
+    seniorHighTrack: "",
+    preferredProgram: "",
+    preferredCourse: "",
+  });
 
   // Handle input changes for dropdowns
   const handleInputChange = (e) => {
@@ -81,24 +41,32 @@ const RegistrationForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // 2. Update existing data or create new data
-    if (registerData.length > 0) {
-      const latestRegistrationId =
-        registerData[registerData.length - 1]._id;
-      axios
-        .put(`/RegistrationForm/${latestRegistrationId}`, formData)
-        .then((result) => console.log(result))
-        .catch((err) => console.log(err));
-    } else {
-      axios
-        .post("/RegistrationForm", formData)
-        .then((result) => console.log(result))
-        .catch((err) => console.log(err));
+    const {
+      registerID,
+      applicantType,
+      seniorHighTrack,
+      preferredProgram,
+      preferredCourse,
+    } = formData
+    try {
+      const { formData } = await axios.post("/Register", {
+        registerID,
+        applicantType,
+        seniorHighTrack,
+        preferredProgram,
+        preferredCourse,
+      });
+      if (formData.error) {
+        toast.error("Error!")
+      } else {
+        setFormData({});
+        toast.success("First Phase submitted successfully!")
+      }
+    } catch (error) {
+      console.log("Error!");
     }
-
     goToNextPage();
   };
 
@@ -110,7 +78,7 @@ const RegistrationForm = () => {
   return (
     <div className={styles.container}>
       <ProgressHeader currentStep={currentStep} />
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <h2 className={styles.formTitle}>Application Details</h2>
 
         {/* Applicant Type */}
@@ -164,8 +132,10 @@ const RegistrationForm = () => {
                   required
                 >
                   <option value="">Select</option>
-                  <option value="Engineering">Computer Science - BSCS</option>
-                  <option value="Business Administration">
+                  <option value="Computer Science - BSCS">
+                    Computer Science - BSCS
+                  </option>
+                  <option value="Information Technology - IT">
                     Information Technology - IT
                   </option>
                 </select>
@@ -205,12 +175,8 @@ const RegistrationForm = () => {
           >
             Reset
           </button>
-          <button
-            type="submit"
-            className={styles.submitButton}
-            onClick={handleSubmit}
-          >
-            Submit
+          <button type="submit" className={styles.submitButton}>
+            Next Page
           </button>
         </div>
       </form>

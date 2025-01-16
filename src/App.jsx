@@ -10,7 +10,6 @@ import FamilyProfile from './pages/FamilyProfile.jsx';
 import EducationalProfile from './pages/EducationalProfile.jsx';
 import UploadRequirements from './pages/UploadRequirements.jsx';
 import ScheduleAppointment from './pages/ScheduleAppointment.jsx';
-import StudentPageNavbar from './components/StudentPageNavbar.jsx';
 import StudentPageHome from './pages/StudentPageHome.jsx';
 import StduentPageEnrollment from './pages/StudentPageEnrollment.jsx';
 import StudentPageAccounts from './pages/StudentPageAccounts.jsx';
@@ -20,45 +19,15 @@ import StudentPageProfile from './pages/StudentPageProfile.jsx';
 import StudentPageChangePass from './pages/StudentPageChangePass.jsx';
 import StudentPageInboxDetail from './pages/StudentPageInboxDetail.jsx';
 import axios from 'axios';
+import { Toaster } from 'react-hot-toast';
 
-function App() {
-  const [registerData, setRegisterData] = useState([]);
-  const [applicantData, setApplicantData] = useState([]);
-  const [familyData, setFamilyData] = useState([]);
-  const [educationData, setEducationData] = useState([]);
-  const [requirementsData, setRequirementsData] = useState([]);
-  const [scheduleData, setScheduleData] = useState([]);
+  axios.defaults.baseURL = 'http://localhost:8000';
+  axios.defaults.withCredentials = true;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const registerResponse = await axios.get('/RegistrationForm');
-        setRegisterData(registerResponse.data);
-
-        const applicantResponse = await axios.get('/ApplicantProfile');
-        setApplicantData(applicantResponse.data);
-
-        const familyResponse = await axios.get('/FamilyProfile');
-        setFamilyData(familyResponse.data);
-
-        const educationResponse = await axios.get('/EducationalProfile');
-        setEducationData(educationResponse.data);
-
-        const requirementsResponse = await axios.get('/UploadRequirements');
-        setRequirementsData(requirementsResponse.data);
-
-        const scheduleResponse = await axios.get('/ScheduleAppointment');
-        setScheduleData(scheduleResponse.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+  function App() {
   return (
     <Router>
+      <Toaster position='bottom-right' toastOptions={{duration: 2000}}/>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/LandingPage" element={<LandingPage />} />
