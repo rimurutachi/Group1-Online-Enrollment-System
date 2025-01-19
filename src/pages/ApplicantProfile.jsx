@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 
 const ApplicantProfile = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     familyName: "",
@@ -35,30 +36,31 @@ const ApplicantProfile = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
- 
   const [currentStep, setCurrentStep] = useState(1); // Set current step to 2 (Applicant Profile)
 
-  // Handle image change for preview
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value || "", // Ensure value is never undefined or null
+    });
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const fileSizeInKB = file.size / 1024; // Convert size to KB
-
+      const fileSizeInKB = file.size / 1024;
       if (fileSizeInKB > 200) {
         setErrorMessage(
           "File size exceeds 200 KB. Please upload a smaller image."
         );
-        setFormData({
-          ...formData, photo: file,
-        }) // Clear the file input to allow the user to select another file
         return;
       }
-
-      setErrorMessage(""); // Reset error message if file size is valid
-
+      setErrorMessage("");
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result);
+        setFormData({ ...formData, photo: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -69,8 +71,6 @@ const ApplicantProfile = () => {
     fileInputRef.current.click();
   };
 
-  const fileInputRef = useRef(null);
-
   // Handle navigation to the previous page
   const handleBack = () => {
     setCurrentStep(0);
@@ -79,63 +79,18 @@ const ApplicantProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {
-      familyName,
-      givenName,
-      middleName,
-      suffix,
-      dateOfBirth,
-      contactNumber,
-      religion,
-      nationality,
-      sex,
-      age,
-      civilStatus,
-      emailAddress,
-      unitNumber,
-      streetName,
-      subBarangay,
-      cityMunicipality,
-      province,
-      zipCode,
-      hasDisability,
-      partOfIndigenousGroup,
-      photo,
-    } = formData;
     try {
-      const { formData } = await axios.post("/Applicant", {
-        familyName,
-        givenName,
-        middleName,
-        suffix,
-        dateOfBirth,
-        contactNumber,
-        religion,
-        nationality,
-        sex,
-        age,
-        civilStatus,
-        emailAddress,
-        unitNumber,
-        streetName,
-        subBarangay,
-        cityMunicipality,
-        province,
-        zipCode,
-        hasDisability,
-        partOfIndigenousGroup,
-        photo,
-      });
-      if (formData.error) {
-        toast.error("Error!");
+      const response = await axios.post("/Applicant", formData);
+      if (response.data.error) {
+        toast.error(response.data.error);
       } else {
-        setFormData({});
         toast.success("Applicant Profile submitted successfully!");
+        goToNextPage();
       }
     } catch (error) {
-      console.log("Error!");
+      console.error(error);
+      toast.error("Failed to submit. Please try again.");
     }
-    goToNextPage();
   };
 
   const goToNextPage = () => {
@@ -145,185 +100,93 @@ const ApplicantProfile = () => {
 
   return (
     <div>
-      {/* ProgressHeader displayed at the top */}
       <ProgressHeader
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
       <form onSubmit={handleSubmit}>
-        {/* Main Content */}
         <div
           className="card shadow p-4"
-          style={{
-            borderRadius: "10px",
-            backgroundColor: "#ffffff",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-          }}
+          style={{ borderRadius: "10px", backgroundColor: "#fff" }}
         >
           <h1 className="mb-4 text-center">
             <i className="bi bi-person-fill"></i> Personal Information
           </h1>
-          <div className="row mb-4">
-            {/* Image Upload on the Left */}
-            <div className="col-md-3 d-flex flex-column align-items-center">
+          <div className="row">
+            <div className="col-md-3 text-center">
               <div
-                className="border rounded mb-2"
-                onClick={handlePreviewClick}
+                className="border rounded"
                 style={{
                   width: "150px",
                   height: "150px",
                   cursor: "pointer",
-                  backgroundColor: "#f8f9fa",
                   overflow: "hidden",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
                 }}
+                onClick={handlePreviewClick}
               >
                 {imagePreview ? (
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
+                    style={{ width: "100%", height: "100%" }}
                   />
                 ) : (
-                  <span className="text-muted text-center">
+                  <span className="text-muted">
                     Click to upload
                     <br />
-                    2x2
+                    2x2 Photo
                   </span>
                 )}
               </div>
               <input
-                id="fileInput"
                 type="file"
-                className="form-control d-none"
-                accept="image/*"
+                className="d-none"
                 ref={fileInputRef}
+                accept="image/*"
                 onChange={handleImageChange}
               />
-              {/* Center the label */}
-              <small className="text-muted text-center mt-2">
-                Photo (200 KB max.)
-              </small>
-              {/* Display error message if the file size is too large */}
               {errorMessage && (
-                <div className="text-danger text-center mt-2">
-                  {errorMessage}
-                </div>
+                <div className="text-danger mt-2">{errorMessage}</div>
               )}
             </div>
-
-            {/* Personal Information and Address on the Right */}
             <div className="col-md-9">
               <h5>Personal Information</h5>
-              {/* Personal Information */}
               <div className="row g-3">
+                {[
+                  { label: "Family Name", name: "familyName" },
+                  { label: "Given Name", name: "givenName" },
+                  { label: "Middle Name", name: "middleName" },
+                  { label: "Suffix", name: "suffix", optional: true },
+                  { label: "Date of Birth", name: "dateOfBirth", type: "date" },
+                  { label: "Contact Number", name: "contactNumber" },
+                  { label: "Religion", name: "religion" },
+                  { label: "Nationality", name: "nationality" },
+                  { label: "Age", name: "age", type: "number" },
+                  { label: "Email Address", name: "emailAddress", },
+                ].map(({ label, name, type = "text", optional = false }) => (
+                  <div className="col-md-6" key={name}>
+                    <label className="form-label">
+                      {label}{" "}
+                      {optional && (
+                        <span className="text-muted">(Optional)</span>
+                      )}
+                    </label>
+                    <input
+                      type={type}
+                      name={name}
+                      className="form-control"
+                      value={formData[name]}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                ))}
                 <div className="col-md-6">
-                  <label className="form-label">Family Name:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.familyName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, familyName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">First Name:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.givenName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, givenName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Middle Name:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.middleName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, middleName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Suffix (Optional):</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.suffix}
-                    onChange={(e) =>
-                      setFormData({ ...formData, suffix: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Date of Birth:</label>
-                  <input
-                    type="date"
-                    className="form-control"
-                    value={formData.dateOfBirth}
-                    onChange={(e) =>
-                      setFormData({ ...formData, dateOfBirth: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Contact Number:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.contactNumber}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        contactNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Religion:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.religion}
-                    onChange={(e) =>
-                      setFormData({ ...formData, religion: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Citizenship:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.nationality}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nationality: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  {/* Gender */}
-                  <label className="form-label">Gender at Birth:</label>
+                  <label className="form-label">Sex</label>
                   <select
                     className="form-select"
-                    aria-label="Select gender"
+                    name="sex"
                     value={formData.sex}
-                    onChange={(e) =>
-                      setFormData({ ...formData, sex: e.target.value })
-                    }
+                    onChange={handleInputChange}
                   >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
@@ -331,190 +194,76 @@ const ApplicantProfile = () => {
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Age:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.age}
-                    onChange={(e) =>
-                      setFormData({ ...formData, age: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="form-label">Civil Status:</label>
+                  <label className="form-label">Civil Status</label>
                   <select
                     className="form-select"
-                    aria-label="Select gender"
+                    name="civilStatus"
                     value={formData.civilStatus}
-                    onChange={(e) =>
-                      setFormData({ ...formData, civilStatus: e.target.value })
-                    }
+                    onChange={handleInputChange}
                   >
-                    <option value="">Select Civil Status</option>
+                    <option value="">Select Status</option>
                     <option value="single">Single</option>
+                    <option value="in a relationship">In a Relationship</option>
                     <option value="married">Married</option>
-                    <option value="widowed">Widowed</option>
-                    <option value="divorced">Divorced</option>
-                    <option value="separated">Separated</option>
-                    <option value="annulled">Annulled</option>
                   </select>
                 </div>
-                <div className="col-md-6">
-                  <label className="form-label">Email Address:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.emailAddress}
-                    onChange={(e) =>
-                      setFormData({ ...formData, emailAddress: e.target.value })
-                    }
-                  />
-                </div>
               </div>
-
-              {/* Address Section */}
-              <hr className="mt-4" />
-              <h5>Permanent Address</h5>
-
-              <div className="row g-3 mt-3">
-                <div className="col-md-4">
-                  <label className="form-label">Unit Number:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.unitNumber}
-                    onChange={(e) =>
-                      setFormData({ ...formData, unitNumber: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Street Name:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.streetName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, streetName: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Subdivision/Barangay:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.subBarangay}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subBarangay: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">City/Municipality:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.cityMunicipality}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        cityMunicipality: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Province:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.province}
-                    onChange={(e) =>
-                      setFormData({ ...formData, province: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Zip Code:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.zipCode}
-                    onChange={(e) =>
-                      setFormData({ ...formData, zipCode: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-
-              <hr className="mt-4" />
-              <div className="row g-3 mt-3">
-                <h5>Other Information:</h5>
-                <div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input check"
-                      type="checkbox"
-                      checked={formData.hasDisability}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          hasDisability: e.target.checked,
-                        })
-                      }
-                      id="flexCheckDefault"
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="flexCheckDefault"
-                    >
-                      I have disability
+              <h5 className="mt-4">Permanent Address</h5>
+              <div className="row g-3">
+                {[
+                  "unitNumber",
+                  "streetName",
+                  "subBarangay",
+                  "cityMunicipality",
+                  "province",
+                  "zipCode",
+                ].map((field) => (
+                  <div className="col-md-4" key={field}>
+                    <label className="form-label">
+                      {field.replace(/([A-Z])/g, " $1")}
                     </label>
-                  </div>
-                  <br />
-                  <div className="form-check">
                     <input
-                      className="form-check-input check"
-                      type="checkbox"
-                      checked={formData.partOfIndigenousGroup}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          partOfIndigenousGroup: e.target.checked,
-                        })
-                      }
-                      id="flexCheckDefault2"
+                      type="text"
+                      name={field}
+                      className="form-control"
+                      value={formData[field] || ""} // Ensure value is never undefined or null
+                      onChange={handleInputChange}
                     />
-                    <label
-                      className="form-check-label"
-                      htmlFor="flexCheckDefault"
-                    >
-                      I am part of an indigenous group
-                    </label>
                   </div>
-                </div>
+                ))}
               </div>
+              <h5 className="mt-4">Other Information</h5>
+              {[
+                { label: "I have a disability", name: "hasDisability" },
+                {
+                  label: "I am part of an indigenous group",
+                  name: "partOfIndigenousGroup",
+                },
+              ].map(({ label, name }) => (
+                <div className="form-check" key={name}>
+                  <input
+                    type="checkbox"
+                    name={name}
+                    className="form-check-input"
+                    checked={formData[name]}
+                    onChange={handleInputChange}
+                  />
+                  <label className="form-check-label">{label}</label>
+                </div>
+              ))}
             </div>
           </div>
-
-          {/* Buttons to navigate */}
           <div className="d-flex justify-content-between mt-4">
-            <Link to="/RegistrationForm">
-              <button
-                type="submit"
-                className="btn btn-success mt-4"
-                onClick={handleBack}
-              >
-                Back Page
-              </button>
-            </Link>
-            <Link to="/FamilyProfile">
-              <button type="submit" className="btn btn-success mt-4" onClick={handleSubmit}>
-                Next Page
-              </button>
-            </Link>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleBack}
+            >
+              Back
+            </button>
+            <button type="submit" className="btn btn-success">
+              Next Page
+            </button>
           </div>
         </div>
       </form>

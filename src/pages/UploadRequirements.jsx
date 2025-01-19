@@ -8,35 +8,29 @@ import { toast } from "react-hot-toast";
 const UploadRequirements = () => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    grade11_1st: null,
-    grade11_2nd: null,
-    grade12_1st: null,
-    grade12_2nd: null,
-    certificate_form_137: null,
-  });
+  const [formData, setFormData] = useState({});
+  const [imagePreviews, setImagePreviews] = useState({});
+  const [currentStep, setCurrentStep] = useState(4); // Assuming you are on step 4 (Upload Requirements)
 
   useEffect(() => {
     // Scroll to the top when the component is mounted
     window.scrollTo(0, 0);
   }, []);
 
-  const [imagePreviews, setImagePreviews] = useState({});
-  const [currentStep, setCurrentStep] = useState(4); // Assuming you are on step 4 (Upload Requirements)
-
-  // Handle image change for preview
+  // Handle image change for specific key
   const handleImageChange = (e, key) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        [key]: file,
-      }));
       const reader = new FileReader();
       reader.onload = () => {
+        // Update image previews and form data
         setImagePreviews((prev) => ({
           ...prev,
-          [key]: reader.result,
+          [key]: reader.result, // Base64 string for preview
+        }));
+        setFormData((prev) => ({
+          ...prev,
+          [key]: file, // File object for upload
         }));
       };
       reader.readAsDataURL(file);
@@ -50,10 +44,11 @@ const UploadRequirements = () => {
       delete updated[key];
       return updated;
     });
-    setFormData((prev) => ({
-      ...prev,
-      [key]: null, // Clear the file from formData
-    }));
+    setFormData((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
   };
 
   // Render Upload Box
@@ -110,31 +105,24 @@ const UploadRequirements = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {
-      grade11_1st,
-      grade11_2nd,
-      grade12_1st,
-      grade12_2nd,
-      certificate_form_137,
-    } = formData;
+    const uploadData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) uploadData.append(key, value);
+    });
+
     try {
-      const { formData } = await axios.post("/Requirement", {
-        grade11_1st,
-        grade11_2nd,
-        grade12_1st,
-        grade12_2nd,
-        certificate_form_137,
+      const response = await axios.post("/Requirement", uploadData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      if (formData.error) {
-        toast.error("Error!");
+      if (response.data.error) {
+        toast.error(response.data.error);
       } else {
-        setFormData({});
         toast.success("Requirements submitted successfully!");
+        goToNextPage();
       }
     } catch (error) {
-      console.log("Error!");
+      toast.error("Failed to upload requirements. Please try again.");
     }
-    goToNextPage();
   };
 
   const goToNextPage = () => {
@@ -210,12 +198,16 @@ const UploadRequirements = () => {
           {/* Navigation Buttons */}
           <div className="d-flex justify-content-between mt-4">
             <Link to="/EducationalProfile">
-              <button type="submit" className="btn btn-success mt-4">
+              <button type="submit" className="btn btn-secondary">
                 Back Page
               </button>
             </Link>
             <Link to="/ScheduleAppointment">
-              <button type="submit" className="btn btn-success mt-4" onClick={handleSubmit}>
+              <button
+                type="submit"
+                className="btn btn-success mt-4"
+                onClick={handleSubmit}
+              >
                 Next Page
               </button>
             </Link>

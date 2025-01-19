@@ -4,32 +4,80 @@ import ProgressHeader from "./ProgressHeader";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+const FormGroup = ({
+  label,
+  type = "text",
+  value = "",
+  onChange = () => {},
+  options,
+}) => {
+  return (
+    <div className="mb-3">
+      <label className="form-label">{label}</label>
+      {options ? (
+        <select
+          className="form-select"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">Select:</option>
+          {options.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          className="form-control"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
+    </div>
+  );
+};
+
+const Section = ({ title, fields }) => (
+  <div className="col-md-6">
+    <h5>{title}</h5>
+    {fields.map((field, index) => (
+      <FormGroup key={index} {...field} />
+    ))}
+  </div>
+);
+
 const FamilyProfile = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(2);
 
   const [formData, setFormData] = useState({
-    parent1Name: "",
-    parent1Relationship: "",
-    parent1Education: "",
-    parent1Occupation: "",
-    parent1Employer: "",
-    parent1Income: "",
-    parent1Contact: "",
-    parent2Name: "",
-    parent2Relationship: "",
-    parent2Education: "",
-    parent2Occupation: "",
-    parent2Employer: "",
-    parent2Income: "",
-    parent2Contact: "",
-    guardianName: "",
-    guardianRelationship: "",
-    guardianEducation: "",
-    guardianOccupation: "",
-    guardianEmployer: "",
-    guardianIncome: "",
-    guardianContact: "",
+    parent1: {
+      name: "",
+      education: "",
+      occupation: "",
+      employer: "",
+      income: "",
+      contact: "",
+    },
+    parent2: {
+      name: "",
+      education: "",
+      occupation: "",
+      employer: "",
+      income: "",
+      contact: "",
+    },
+    guardian: {
+      name: "",
+      relationship: "",
+      education: "",
+      occupation: "",
+      employer: "",
+      income: "",
+      contact: "",
+    },
     siblings: "",
   });
 
@@ -37,64 +85,41 @@ const FamilyProfile = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  const updateField = (section, field, value) => {
+    if (section === "siblings") {
+      // Handle siblings separately as it's not an object
+      setFormData((prev) => ({
+        ...prev,
+        siblings: value,
+      }));
+    } else {
+      // Handle other sections normally
+      setFormData((prev) => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value,
+        },
+      }));
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {
-      parent1Name,
-      parent1Education,
-      parent1Occupation,
-      parent1Employer,
-      parent1Income,
-      parent1Contact,
-      parent2Name,
-      parent2Education,
-      parent2Occupation,
-      parent2Employer,
-      parent2Income,
-      parent2Contact,
-      guardianName,
-      guardianRelationship,
-      guardianEducation,
-      guardianOccupation,
-      guardianEmployer,
-      guardianIncome,
-      guardianContact,
-      siblings,
-    } = formData;
     try {
-      const { formData } = await axios.post("/Family", {
-        parent1Name,
-        parent1Education,
-        parent1Occupation,
-        parent1Employer,
-        parent1Income,
-        parent1Contact,
-        parent2Name,
-        parent2Education,
-        parent2Occupation,
-        parent2Employer,
-        parent2Income,
-        parent2Contact,
-        guardianName,
-        guardianRelationship,
-        guardianEducation,
-        guardianOccupation,
-        guardianEmployer,
-        guardianIncome,
-        guardianContact,
-        siblings,
-      });
-      if (formData.error) {
-        toast.error("Error!");
+      const { data } = await axios.post("/Family", formData);
+      if (data.error) {
+        toast.error("Error: " + data.error);
       } else {
-        setFormData({});
         toast.success("Family information submitted successfully!");
+        setFormData({ parent1: {}, parent2: {}, guardian: {}, siblings: "" });
+        goToNextPage();
       }
     } catch (error) {
-      console.log("Error!");
+      console.error("Submission error:", error);
+      toast.error("Submission failed.");
     }
-    goToNextPage();
   };
 
   const goToNextPage = () => {
@@ -103,344 +128,174 @@ const FamilyProfile = () => {
   };
 
   return (
-    <div
-      className="containers"
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
+    <div className="containers" style={{ minHeight: "100vh" }}>
       <ProgressHeader
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
       <form onSubmit={handleSubmit}>
-        <div
-          className="card shadow p-4"
-          style={{
-            borderRadius: "10px",
-            backgroundColor: "#ffffff",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            flex: 1,
-            overflowY: "auto",
-          }}
-        >
+        <div className="card shadow p-4" style={{ borderRadius: "10px" }}>
           <h1 className="mb-4">
             <i className="bi bi-people-fill"></i> Family Background
           </h1>
-          <hr className="divider" />
+          <hr />
           <div className="row">
-            <div className="col-md-6">
-              <h5>Mother's Information:</h5>
-              <div className="mb-3">
-                <label className="form-label">Name:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent1Name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent1Name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Educational Attainment:</label>
-                <select
-                  className="form-select"
-                  aria-label="Educational Attainment"
-                  value={formData.parent1Education}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent1Education: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select:</option>
-                  <option value="Elementary">Elementary</option>
-                  <option value="Junior High School">Junior High School</option>
-                  <option value="Senior High School">Senior High School</option>
-                  <option value="Undergraduate">Undergraduate</option>
-                  <option value="Post-Graduate">Post-Graduate</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Occupation:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent1Occupation}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent1Occupation: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Employer:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Fill if employed."
-                  value={formData.parent1Employer}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent1Employer: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Monthly Income:</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={formData.parent1Income}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent1Income: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Contact Number:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent1Contact}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent1Contact: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="col-md-6">
-              <h5>Father's Information:</h5>
-              <div className="mb-3">
-                <label className="form-label">Name:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent2Name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent2Name: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Educational Attainment:</label>
-                <select
-                  className="form-select"
-                  aria-label="Educational Attainment"
-                  value={formData.parent2Education}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent2Education: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select:</option>
-                  <option value="Elementary">Elementary</option>
-                  <option value="Junior High School">Junior High School</option>
-                  <option value="Senior High School">Senior High School</option>
-                  <option value="Undergraduate">Undergraduate</option>
-                  <option value="Post-Graduate">Post-Graduate</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Occupation:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent2Occupation}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent2Occupation: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Employer:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Fill if employed."
-                  value={formData.parent2Employer}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      parent2Employer: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Monthly Income:</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={formData.parent2Income}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent2Income: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Contact Number:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.parent2Contact}
-                  onChange={(e) =>
-                    setFormData({ ...formData, parent2Contact: e.target.value })
-                  }
-                />
-              </div>
-            </div>
+            <Section
+              title="Mother's Information"
+              fields={[
+                {
+                  label: "Name",
+                  value: formData.parent1.name,
+                  onChange: (val) => updateField("parent1", "name", val),
+                },
+                {
+                  label: "Educational Attainment",
+                  value: formData.parent1.education,
+                  onChange: (val) => updateField("parent1", "education", val),
+                  options: [
+                    "Elementary",
+                    "High School",
+                    "Undergraduate",
+                    "Post-Graduate",
+                  ],
+                },
+                {
+                  label: "Occupation",
+                  value: formData.parent1.occupation,
+                  onChange: (val) => updateField("parent1", "occupation", val),
+                },
+                {
+                  label: "Employer (If none, type N/A.)",
+                  value: formData.parent1.employer,
+                  onChange: (val) => updateField("parent1", "employer", val),
+                },
+                {
+                  label: "Monthly Income",
+                  value: formData.parent1.income,
+                  onChange: (val) => updateField("parent1", "income", val),
+                  type: "number",
+                },
+                {
+                  label: "Contact Number",
+                  value: formData.parent1.contact,
+                  onChange: (val) => updateField("parent1", "contact", val),
+                },
+              ]}
+            />
+            <Section
+              title="Father's Information"
+              fields={[
+                {
+                  label: "Name",
+                  value: formData.parent2.name,
+                  onChange: (val) => updateField("parent2", "name", val),
+                },
+                {
+                  label: "Educational Attainment",
+                  value: formData.parent2.education,
+                  onChange: (val) => updateField("parent2", "education", val),
+                  options: [
+                    "Elementary",
+                    "High School",
+                    "Undergraduate",
+                    "Post-Graduate",
+                  ],
+                },
+                {
+                  label: "Occupation",
+                  value: formData.parent2.occupation,
+                  onChange: (val) => updateField("parent2", "occupation", val),
+                },
+                {
+                  label: "Employer (If none, type N/A.)",
+                  value: formData.parent2.employer,
+                  onChange: (val) => updateField("parent2", "employer", val),
+                },
+                {
+                  label: "Monthly Income",
+                  value: formData.parent2.income,
+                  onChange: (val) => updateField("parent2", "income", val),
+                  type: "number",
+                },
+                {
+                  label: "Contact Number",
+                  value: formData.parent2.contact,
+                  onChange: (val) => updateField("parent2", "contact", val),
+                },
+              ]}
+            />
           </div>
-          <hr className="divider" />
-
+          <hr />
           <div className="row">
-            <div className="col-md-6">
-              <h4 className="mb-3">Guardian</h4>
-              <div className="mb-3">
-                <label className="form-label">Name:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.guardianName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, guardianName: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Relationship:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.guardianRelationship}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      guardianRelationship: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Educational Attainment:</label>
-                <select
-                  className="form-select"
-                  aria-label="Educational Attainment"
-                  value={formData.guardianEducation}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      guardianEducation: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Select:</option>
-                  <option value="Elementary">Elementary</option>
-                  <option value="Junior High School">Junior High School</option>
-                  <option value="Senior High School">Senior High School</option>
-                  <option value="Undergraduate">Undergraduate</option>
-                  <option value="Post-Graduate">Post-Graduate</option>
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Occupation:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.guardianOccupation}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      guardianOccupation: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Employer:</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  placeholder="Fill if employed."
-                  value={formData.guardianEmployer}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      guardianEmployer: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Monthly Income:</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  value={formData.guardianIncome}
-                  onChange={(e) =>
-                    setFormData({ ...formData, guardianIncome: e.target.value })
-                  }
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Contact Number:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.guardianContact}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      guardianContact: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="col-md-6">
-              <h4 className="mb-3">Siblings</h4>
-              <div className="mb-3">
-                <label className="form-label">Number of Siblings:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Place N/A if none."
-                  value={formData.siblings}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      siblings: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
+            <Section
+              title="Guardian Information"
+              fields={[
+                {
+                  label: "Name",
+                  value: formData.guardian.name,
+                  onChange: (val) => updateField("guardian", "name", val),
+                },
+                {
+                  label: "Relationship",
+                  value: formData.guardian.relationship,
+                  onChange: (val) =>
+                    updateField("guardian", "relationship", val),
+                },
+                {
+                  label: "Educational Attainment",
+                  value: formData.guardian.education,
+                  onChange: (val) => updateField("guardian", "education", val),
+                  options: [
+                    "Elementary",
+                    "High School",
+                    "Undergraduate",
+                    "Post-Graduate",
+                  ],
+                },
+                {
+                  label: "Occupation",
+                  value: formData.guardian.occupation,
+                  onChange: (val) => updateField("guardian", "occupation", val),
+                },
+                {
+                  label: "Employer (If none, type N/A.)",
+                  value: formData.guardian.employer,
+                  onChange: (val) => updateField("guardian", "employer", val),
+                },
+                {
+                  label: "Monthly Income",
+                  value: formData.guardian.income,
+                  onChange: (val) => updateField("guardian", "income", val),
+                  type: "number",
+                },
+                {
+                  label: "Contact Number",
+                  value: formData.guardian.contact,
+                  onChange: (val) => updateField("guardian", "contact", val),
+                },
+              ]}
+            />
+            <Section
+              title="Siblings"
+              fields={[
+                {
+                  label: "Number of Siblings",
+                  value: formData.siblings,
+                  onChange: (val) => updateField("siblings", null, val), // No field needed here
+                  type: "number", // Ensure this is numeric input
+                },
+              ]}
+            />
           </div>
-
           <div className="d-flex justify-content-between mt-4">
             <Link to="/ApplicantProfile">
-              <button className="btn btn-success mt-4">Back Page</button>
-            </Link>
-            <Link to="/EducationalProfile">
-              <button
-                type="submit"
-                className="btn btn-success mt-4"
-                onClick={handleSubmit}
-              >
-                Next Page
+              <button type="button" className="btn btn-secondary">
+                Back Page
               </button>
             </Link>
+            <button type="submit" className="btn btn-success">
+              Next Page
+            </button>
           </div>
         </div>
       </form>

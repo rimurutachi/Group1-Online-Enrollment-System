@@ -11,37 +11,31 @@ const ScheduleAppointment = () => {
     preferredDate: "",
     preferredTime: "",
   });
+  const [currentStep, setCurrentStep] = useState(5);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.id]: e.target.value,
-    });
+    const { id, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [id]: value }));
   };
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const [currentStep, setCurrentStep] = useState(5);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { preferredDate, preferredTime } = formData;
     try {
-      const { formData } = await axios.post("/Schedule", {
-        preferredDate,
-        preferredTime,
-      });
-      if (formData.error) {
-        toast.error("Error!");
+      const response = await axios.post("/Schedule", formData);
+      if (response.data.error) {
+        toast.error(response.data.error);
       } else {
-        setFormData({});
+        setFormData({ preferredDate: "", preferredTime: "" });
         toast.success("Appointment scheduled successfully!");
         navigate("/RegistrationForm");
       }
     } catch (error) {
-      console.log("Error!");
+      toast.error("An error occurred while scheduling the appointment.");
+      console.error(error);
     }
   };
 
@@ -101,7 +95,7 @@ const ScheduleAppointment = () => {
               style={{
                 width: "300px",
               }}
-              value={formData.preferredDate}
+              value={formData.preferredTime}
               onChange={handleChange}
             />
           </div>
@@ -109,9 +103,13 @@ const ScheduleAppointment = () => {
           {/* Navigation Buttons */}
           <div className="d-flex justify-content-between mt-4">
             <Link to="/UploadRequirements">
-              <button className="btn btn-success">Back Page</button>
+              <button className="btn btn-secondary">Back Page</button>
             </Link>
-            <button type="submit" className="btn btn-success" onClick={handleSubmit}>
+            <button
+              type="submit"
+              className="btn btn-success"
+              onClick={handleSubmit}
+            >
               Submit Application
             </button>
           </div>

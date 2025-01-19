@@ -2,28 +2,37 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 // Family Profile (3) Schema
-const FamilySchema = new Schema({
-  parent1Name: String,
-  parent1Education: String,
-  parent1Occupation: String,
-  parent1Employer: String,
-  parent1Income: String,
-  parent1Contact: String,
-  parent2Name: String,
-  parent2Education: String,
-  parent2Occupation: String,
-  parent2Employer: String,
-  parent2Income: String,
-  parent2Contact: String,
-  guardianName: String,
-  guardianRelationship: String,
-  guardianEducation: String,
-  guardianOccupation: String,
-  guardianEmployer: String,
-  guardianIncome: String,
-  guardianContact: String,
-  siblings: String,
-});
+const FamilySchema = new Schema(
+  {
+    parent1: {
+      name: { type: String, required: true },
+      education: { type: String, default: "" },
+      occupation: { type: String, default: "" },
+      employer: { type: String, default: "" },
+      income: { type: Number, default: 0 },
+      contact: { type: String, default: "" },
+    },
+    parent2: {
+      name: { type: String, required: true },
+      education: { type: String, default: "" },
+      occupation: { type: String, default: "" },
+      employer: { type: String, default: "" },
+      income: { type: Number, default: 0 },
+      contact: { type: String, default: "" },
+    },
+    guardian: {
+      name: { type: String, required: true },
+      relationship: { type: String, default: "" },
+      education: { type: String, default: "" },
+      occupation: { type: String, default: "" },
+      employer: { type: String, default: "" },
+      income: { type: Number, default: 0 },
+      contact: { type: String, default: "" },
+    },
+    siblings: { type: Number, required: true, min: 0 },
+  },
+  { timestamps: true }
+);
 
 const FamilyModel = mongoose.model("Family", FamilySchema);
 
